@@ -41,9 +41,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Optional<Item> update(Item item) {
-        Item oldItem = itemStorage.get(item.getId()).orElseThrow(() -> new ItemNotFoundException());
+        Item oldItem = itemStorage.get(item.getId()).orElseThrow(ItemNotFoundException::new);
 
-        if (oldItem.getOwnerId() != item.getOwnerId()) {
+        if (!oldItem.getOwnerId().equals(item.getOwnerId())) {
             throw new NotFoundException("Не хозяин вещи");
         }
 
@@ -83,7 +83,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Collection<Item> getAll(Long ownerId) {
-        return itemStorage.getAll().stream().filter(s -> s.getOwnerId() == ownerId).collect(Collectors.toList());
+        return itemStorage.getAll().stream().filter(s -> s.getOwnerId().equals(ownerId)).collect(Collectors.toList());
     }
 
 }
