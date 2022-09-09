@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 @Primary
 public class FakeUserStorage implements UserStorage {
-    final private Map<Long, User> inMemoryStorage;
+    private final Map<Long, User> inMemoryStorage;
     private Long idCounter;
 
     public FakeUserStorage() {
