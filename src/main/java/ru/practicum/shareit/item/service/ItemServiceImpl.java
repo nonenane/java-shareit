@@ -41,9 +41,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Optional<Item> update(Item item) {
-        Item oldItem = itemStorage.get(item.getId()).orElseThrow(() -> new ItemNotFoundException());
+        Item oldItem = itemStorage.get(item.getId()).orElseThrow(ItemNotFoundException::new);
 
-        if (!oldItem.getOwnerId().equals(item.getOwnerId()) {
+        if (!oldItem.getOwnerId().equals(item.getOwnerId())) {
             throw new NotFoundException("Не хозяин вещи");
         }
 
