@@ -6,12 +6,13 @@ import ru.practicum.shareit.item.model.Item;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
 @Primary
 public class FakeItemStorage implements ItemStorage {
-    private final HashMap<Long, Item> inMemoryStorage;
+    private final Map<Long, Item> inMemoryStorage;
     private Long idCounter;
 
     public FakeItemStorage() {
