@@ -12,7 +12,7 @@ public class ItemMapper {
         return new Item(null, ownerId, itemCreateDto.getName(), itemCreateDto.getDescription(), itemCreateDto.getAvailable());
     }
 
-    public Item toItem(ItemCreateDto itemCreateDto, Long ownerId,Long itemId) {
+    public Item toItem(ItemCreateDto itemCreateDto, Long ownerId, Long itemId) {
         return new Item(itemId, ownerId, itemCreateDto.getName(), itemCreateDto.getDescription(), itemCreateDto.getAvailable());
     }
 

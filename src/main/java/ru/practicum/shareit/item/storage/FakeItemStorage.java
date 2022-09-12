@@ -11,7 +11,7 @@ import java.util.Optional;
 @Repository
 @Primary
 public class FakeItemStorage implements ItemStorage {
-    HashMap<Long, Item> inMemoryStorage;
+    private final HashMap<Long, Item> inMemoryStorage;
     private Long idCounter;
 
     public FakeItemStorage() {
@@ -19,18 +19,16 @@ public class FakeItemStorage implements ItemStorage {
         idCounter = 1L;
     }
 
-    @Primary
-
     @Override
     public Optional<Item> create(Item item) {
-        Item itemForSave = new Item(idCounter, item.getOwnerId(), item.getName(), item.getDescription(), item.getAvailable());
-        inMemoryStorage.put(idCounter++, itemForSave);
-        return Optional.of(itemForSave);
+        item.setId(idCounter++);
+        inMemoryStorage.put(item.getId(), item);
+        return Optional.of(item);
     }
 
     @Override
     public Optional<Item> get(Long id) {
-        return Optional.of(inMemoryStorage.get(id));
+        return Optional.ofNullable(inMemoryStorage.get(id));
     }
 
     @Override
