@@ -7,9 +7,9 @@ import java.util.Collection;
 import java.util.Optional;
 
 public interface UserService {
-    Optional<UserDTO> create(UserCreationDTO userDTO);
+    Optional<UserDTO> create(UserDTO userDTO);
 
-    Optional<UserDTO> update(Long id, UserCreationDTO userDTO);
+    Optional<UserDTO> update(Long id, UserDTO userDTO);
 
     Optional<UserDTO> get(Long id);
 

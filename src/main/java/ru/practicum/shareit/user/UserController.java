@@ -25,13 +25,13 @@ public class UserController {
 
 
     @PostMapping
-    public UserDTO create(@Valid @RequestBody UserCreationDTO userDTO) {
+    public UserDTO create(@Valid @RequestBody UserDTO userDTO) {
         Optional<UserDTO> user = userServiceImp.create(userDTO);
         return user.orElseThrow(() -> new NotFoundException(""));
     }
 
     @PatchMapping("/{id}")
-    public UserDTO update(@PathVariable Long id, @Valid @RequestBody UserCreationDTO userDTO) {
+    public UserDTO update(@PathVariable Long id, @Valid @RequestBody UserDTO userDTO) {
         Optional<UserDTO> user = userServiceImp.update(id, userDTO);
         return user.orElseThrow(() -> new NotFoundException(""));
     }

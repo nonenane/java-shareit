@@ -3,8 +3,11 @@ package ru.practicum.shareit.item;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.ItemNotFoundException;
-import ru.practicum.shareit.item.dto.ItemCreateDto;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoForOwner;
+import ru.practicum.shareit.item.mapper.CommentMapper;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
@@ -24,22 +27,24 @@ public class ItemController {
 
 
     @GetMapping
-    public Collection<ItemDto> getAll(@RequestHeader("X-Sharer-User-Id") Long ownerId) {
+    public Collection<ItemDtoForOwner> getAll(@RequestHeader("X-Sharer-User-Id") Long ownerId) {
         return itemService.getAll(ownerId);
     }
 
     @PostMapping
-    public ItemDto create(@RequestHeader("X-Sharer-User-Id") Long ownerId, @Valid @RequestBody ItemCreateDto itemCreateDto) {
-        return itemService.create(ownerId, itemCreateDto).orElseThrow(ItemNotFoundException::new);
+    public ItemDto create(@RequestHeader("X-Sharer-User-Id") Long ownerId, @Valid @RequestBody ItemDto itemDto) {
+        return itemService.create(ownerId, itemDto).orElseThrow(ItemNotFoundException::new);
     }
 
     @GetMapping("{itemId}")
-    public ItemDto get(@RequestHeader("X-Sharer-User-Id") Long ownerId, @PathVariable Long itemId) {
-        return itemService.get(itemId).orElseThrow(ItemNotFoundException::new);
+    public ItemDtoForOwner get(@RequestHeader("X-Sharer-User-Id") Long ownerId, @PathVariable Long itemId) {
+        // return itemService.get(itemId).orElseThrow(ItemNotFoundException::new);
+
+        return itemService.getItemWithOwnerCheck(itemId, ownerId).orElseThrow(ItemNotFoundException::new);
     }
 
     @PatchMapping("{itemId}")
-    public ItemDto update(@RequestHeader("X-Sharer-User-Id") Long ownerId, @PathVariable Long itemId, @Valid @RequestBody ItemCreateDto itemDto) {
+    public ItemDto update(@RequestHeader("X-Sharer-User-Id") Long ownerId, @PathVariable Long itemId, @Valid @RequestBody ItemDto itemDto) {
         return itemService.update(ownerId, itemId, itemDto).orElseThrow(ItemNotFoundException::new);
     }
 
@@ -47,4 +52,15 @@ public class ItemController {
     public Collection<ItemDto> search(@RequestHeader("X-Sharer-User-Id") Long ownerId, @RequestParam(required = false) String text) {
         return itemService.search(text);
     }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto createComment(@Valid @RequestBody CommentDto commentDto,
+                                    @PathVariable Long itemId,
+                                    @RequestHeader("X-Sharer-User-Id") Long id) {
+
+        Comment comment = itemService.createComment(CommentMapper.toComment(commentDto, null, null),
+                itemId, id);
+        return CommentMapper.toCommentDto(comment);
+    }
+
 }

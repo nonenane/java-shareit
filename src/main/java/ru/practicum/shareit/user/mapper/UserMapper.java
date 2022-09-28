@@ -8,7 +8,7 @@ import ru.practicum.shareit.user.model.User;
 @Component
 public class UserMapper {
 
-    public User toUser(UserCreationDTO userDTO) {
+    public User toUser(UserDTO userDTO) {
         return new User(null, userDTO.getName(), userDTO.getEmail());
     }
 
