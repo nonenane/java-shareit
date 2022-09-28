@@ -47,9 +47,9 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Optional<ItemDto> create(Long ownerId, ItemDto ItemDto) {
-        log.info("Create Item OwnerID:{}; Item:{}", ownerId, ItemDto);
-        Item item = ItemMapper.toItem(ItemDto, ownerId);
+    public Optional<ItemDto> create(Long ownerId, ItemDto itemDto) {
+        log.info("Create Item OwnerID:{}; Item:{}", ownerId, itemDto);
+        Item item = ItemMapper.toItem(itemDto, ownerId);
         if (item.getName() == null || item.getName().isBlank() ||
                 item.getDescription() == null || item.getDescription().isBlank() ||
                 item.getAvailable() == null ||
@@ -118,7 +118,7 @@ public class ItemServiceImpl implements ItemService {
         Collection<ItemDtoForOwner> itemDtoForOwners = itemList.stream()
                 .map(x -> {
                     List<Booking> bookingList = bookingRepository.findAllByItem_IdOrderByStartDesc(x.getId());
-                    return ItemMapper.ItemDtoForOwnerFromItemAndBookingList(x, bookingList);
+                    return ItemMapper.itemDtoForOwnerFromItemAndBookingList(x, bookingList);
                 })
                 .collect(Collectors.toList());
 
@@ -139,7 +139,7 @@ public class ItemServiceImpl implements ItemService {
 
         ItemDtoForOwner returnItemDto;
         if (Objects.equals(item.getOwnerId(), requestorId)) {
-            returnItemDto = ItemMapper.ItemDtoForOwnerFromItemAndBookingList(item,
+            returnItemDto = ItemMapper.itemDtoForOwnerFromItemAndBookingList(item,
                     bookingRepository.findAllByItem_IdOrderByStartDesc(itemId));
         } else {
             returnItemDto = ItemMapper.toItemDtoForOwner(item, null, null);

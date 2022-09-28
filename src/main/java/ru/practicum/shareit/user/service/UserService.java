@@ -1,6 +1,5 @@
 package ru.practicum.shareit.user.service;
 
-import ru.practicum.shareit.user.dto.UserCreationDTO;
 import ru.practicum.shareit.user.dto.UserDTO;
 
 import java.util.Collection;

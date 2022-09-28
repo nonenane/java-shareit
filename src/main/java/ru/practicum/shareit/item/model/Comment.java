@@ -28,10 +28,10 @@ public class Comment {
     @Column(name = "text")
     String text;
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="item_id", nullable=false)
+    @JoinColumn(name = "item_id", nullable = false)
     Item item;
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="author_id", nullable=false)
+    @JoinColumn(name = "author_id", nullable = false)
     User author;
     @NotNull
     @Column(name = "created")

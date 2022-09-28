@@ -13,8 +13,8 @@ import java.util.List;
 @Component
 public class ItemMapper {
 
-    public static Item toItem(ItemDto ItemDto, Long ownerId) {
-        return new Item(null, ownerId, ItemDto.getName(), ItemDto.getDescription(), ItemDto.getAvailable());
+    public static Item toItem(ItemDto itemDto, Long ownerId) {
+        return new Item(null, ownerId, itemDto.getName(), itemDto.getDescription(), itemDto.getAvailable());
     }
 
     public static Item toItem(ItemDto itemDto, Long ownerId, Long itemId) {
@@ -38,7 +38,7 @@ public class ItemMapper {
                 null);
     }
 
-    public static ItemDtoForOwner ItemDtoForOwnerFromItemAndBookingList(Item item, List<Booking> bookingList) {
+    public static ItemDtoForOwner itemDtoForOwnerFromItemAndBookingList(Item item, List<Booking> bookingList) {
 
         if (bookingList.isEmpty())
             return ItemMapper.toItemDtoForOwner(item, null, null);

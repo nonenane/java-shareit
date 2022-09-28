@@ -3,7 +3,6 @@ package ru.practicum.shareit.user;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.user.dto.UserCreationDTO;
 import ru.practicum.shareit.user.dto.UserDTO;
 import ru.practicum.shareit.user.service.UserServiceImp;
 
