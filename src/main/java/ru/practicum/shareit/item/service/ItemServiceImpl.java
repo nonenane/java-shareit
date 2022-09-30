@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.service.BookingService;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
 
 
@@ -35,15 +37,13 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final BookingRepository bookingRepository;
-    private final BookingService bookingService;
 
     @Autowired
-    public ItemServiceImpl(ItemRepository itemRepository, UserRepository userRepository, CommentRepository commentRepository, BookingRepository bookingRepository, @Lazy BookingService bookingService) {
+    public ItemServiceImpl(ItemRepository itemRepository, UserRepository userRepository, CommentRepository commentRepository, BookingRepository bookingRepository) {
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
         this.commentRepository = commentRepository;
         this.bookingRepository = bookingRepository;
-        this.bookingService = bookingService;
     }
 
     @Override
@@ -62,6 +62,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public Optional<ItemDto> update(Long ownerId, Long itemId, ItemDto itemDto) {
         log.info("Update Item OwnerID:{}; ItemId:{}; Item:{}", ownerId, itemId, itemDto);
 
@@ -156,8 +157,11 @@ public class ItemServiceImpl implements ItemService {
         comment.setAuthor(userRepository.findById(createrId).orElseThrow(() -> new NotFoundException(createrId.toString()))); //здесь произойдет проверка корректности createrId
         comment.setCreated(LocalDateTime.now());
 
+        Collection<Booking> bookings = bookingRepository.findAllByBooker_IdAndStartBeforeAndEndBeforeOrderByStartDesc(createrId,
+                LocalDateTime.now(),
+                LocalDateTime.now());
 
-        if (!bookingService.getAllMyBookings(createrId, BookingState.PAST).stream()
+        if (!bookings.stream()
                 .map(x -> x.getItem().getId())
                 .collect(Collectors.toList())
                 .contains(itemId))
