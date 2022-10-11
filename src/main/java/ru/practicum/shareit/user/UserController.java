@@ -3,7 +3,6 @@ package ru.practicum.shareit.user;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.user.dto.UserCreationDTO;
 import ru.practicum.shareit.user.dto.UserDTO;
 import ru.practicum.shareit.user.service.UserServiceImp;
 
@@ -25,13 +24,13 @@ public class UserController {
 
 
     @PostMapping
-    public UserDTO create(@Valid @RequestBody UserCreationDTO userDTO) {
+    public UserDTO create(@Valid @RequestBody UserDTO userDTO) {
         Optional<UserDTO> user = userServiceImp.create(userDTO);
         return user.orElseThrow(() -> new NotFoundException(""));
     }
 
     @PatchMapping("/{id}")
-    public UserDTO update(@PathVariable Long id, @Valid @RequestBody UserCreationDTO userDTO) {
+    public UserDTO update(@PathVariable Long id, @Valid @RequestBody UserDTO userDTO) {
         Optional<UserDTO> user = userServiceImp.update(id, userDTO);
         return user.orElseThrow(() -> new NotFoundException(""));
     }

@@ -6,6 +6,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @RestControllerAdvice
@@ -67,5 +71,37 @@ public class ErrorHandler {
         return new ResponseEntity<>(
                 "Произошла непредвиденная ошибка " + e.getClass(),
                 HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<String> handleAccessDeniedException(final AccessDeniedException e) {
+        log.info("error: AccessDeniedException");
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<String> handleBookingNotFoundException(final BookingNotFoundException e) {
+        log.info("error: BookingNotFoundException");
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<String> handleItemNotAvailableException(final ItemNotAvailableException e) {
+        log.info("error: ItemNotAvailableException");
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<Map<String, String>> handleMethodArgumentTypeMismatchException(final MethodArgumentTypeMismatchException e) {
+        log.info("error: MethodArgumentTypeMismatchException");
+        if (Objects.requireNonNull(e.getMessage()).contains("ru.practicum.shareit.booking.state.BookingState"))
+            return new ResponseEntity<>(Map.of("error", "Unknown state: UNSUPPORTED_STATUS"), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<String> handleBadRequestException(final BadRequestException e) {
+        log.info("error: BadRequestException");
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }
