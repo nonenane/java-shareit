@@ -10,7 +10,7 @@ public interface ItemRequestService {
 
     Optional<ItemRequestDto> createItemRequest(ItemRequestDto itemRequestDto, Long creatorId);
 
-    List<ItemRequestDto> getMyItemRequests(Long petitioner_id);
+    List<ItemRequestDto> getMyItemRequests(Long petitionerId);
 
     List<ItemRequestDto> getItemRequests(Integer from, Integer size, Long petitionerId);
 
