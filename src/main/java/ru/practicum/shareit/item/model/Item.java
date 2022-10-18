@@ -27,7 +27,7 @@ public class Item {
     @Column(name = "available")
     private Boolean available;
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="request_id")
+    @JoinColumn(name = "request_id")
     private ItemRequest request;
 
 }

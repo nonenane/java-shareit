@@ -42,22 +42,21 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public List<ItemRequestDto> getMyItemRequests(Long petitioner_id) {
-        //проверка корректности petitioner_id
-        userRepository.findById(petitioner_id).orElseThrow(() -> new NotFoundException(""));
+    public List<ItemRequestDto> getMyItemRequests(Long petitionerId) {
+        //проверка корректности petitionerId
+        userRepository.findById(petitionerId).orElseThrow(() -> new NotFoundException(""));
 
-        List<ItemRequest> itemRequests = itemRequestRepository.findAllByPetitioner_IdOrderByCreatedDesc(petitioner_id);
+        List<ItemRequest> itemRequests = itemRequestRepository.findAllByPetitioner_IdOrderByCreatedDesc(petitionerId);
 
 
         return toItemRequestDtos(itemRequests);
     }
 
     @Override
-    public List<ItemRequestDto> getItemRequests(Integer from, Integer size, Long petitioner_id) {
-        //проверка корректности petitioner_id
-        userRepository.findById(petitioner_id).orElseThrow(() -> new NotFoundException(""));
+    public List<ItemRequestDto> getItemRequests(Integer from, Integer size, Long petitionerId) {
+        userRepository.findById(petitionerId).orElseThrow(() -> new NotFoundException(""));
 
-        List<ItemRequest> itemRequests = itemRequestRepository.findPageNotMyRequests(petitioner_id, from, size);
+        List<ItemRequest> itemRequests = itemRequestRepository.findPageNotMyRequests(petitionerId, from, size);
 
         return toItemRequestDtos(itemRequests);
     }
@@ -77,9 +76,9 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public Optional<ItemRequestDto> getItemRequest(Long requestId, Long petitioner_id) {
+    public Optional<ItemRequestDto> getItemRequest(Long requestId, Long petitionerId) {
         //проверка корректности petitioner_id
-        userRepository.findById(petitioner_id).orElseThrow(() -> new NotFoundException(""));
+        userRepository.findById(petitionerId).orElseThrow(() -> new NotFoundException(""));
 
         ItemRequest itemRequest = itemRequestRepository.findById(requestId).orElseThrow(() -> new NotFoundException(""));
 
