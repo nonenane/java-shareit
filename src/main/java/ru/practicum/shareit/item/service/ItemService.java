@@ -15,11 +15,11 @@ public interface ItemService {
 
     Optional<ItemDto> get(Long id);
 
-    Collection<ItemDto> search(String text);
+    Collection<ItemDto> search(String text, Integer from, Integer size);
 
     void delete(Long id);
 
-    Collection<ItemDtoForOwner> getAll(Long ownerId);
+    Collection<ItemDtoForOwner> getAll(Long ownerId, Integer from, Integer size);
 
     Comment createComment(Comment comment, Long itemId, Long createrId);
 

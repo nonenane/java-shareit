@@ -6,10 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.exception.BadRequestException;
-import ru.practicum.shareit.exception.ItemNotFoundException;
-import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.exception.*;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoForOwner;
 import ru.practicum.shareit.item.mapper.CommentMapper;
@@ -18,6 +15,7 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
@@ -32,21 +30,25 @@ public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final ItemRequestRepository itemRequestRepository;
     private final CommentRepository commentRepository;
     private final BookingRepository bookingRepository;
 
     @Autowired
-    public ItemServiceImpl(ItemRepository itemRepository, UserRepository userRepository, CommentRepository commentRepository, BookingRepository bookingRepository) {
+    public ItemServiceImpl(ItemRepository itemRepository, UserRepository userRepository, CommentRepository commentRepository, BookingRepository bookingRepository, ItemRequestRepository itemRequestRepository) {
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
         this.commentRepository = commentRepository;
         this.bookingRepository = bookingRepository;
+        this.itemRequestRepository = itemRequestRepository;
     }
 
     @Override
     public Optional<ItemDto> create(Long ownerId, ItemDto itemDto) {
         log.info("Create Item OwnerID:{}; Item:{}", ownerId, itemDto);
-        Item item = ItemMapper.toItem(itemDto, ownerId);
+        Item item = ItemMapper.toItem(itemDto,
+                ownerId,
+                itemDto.getRequestId() == null ? null : itemRequestRepository.findById(itemDto.getRequestId()).orElseThrow(() -> new NotFoundException("")));
         if (item.getName() == null || item.getName().isBlank() ||
                 item.getDescription() == null || item.getDescription().isBlank() ||
                 item.getAvailable() == null ||
@@ -63,12 +65,15 @@ public class ItemServiceImpl implements ItemService {
     public Optional<ItemDto> update(Long ownerId, Long itemId, ItemDto itemDto) {
         log.info("Update Item OwnerID:{}; ItemId:{}; Item:{}", ownerId, itemId, itemDto);
 
-        Item item = ItemMapper.toItem(itemDto, ownerId, itemId);
+        Item item = ItemMapper.toItem(itemDto,
+                ownerId,
+                itemId,
+                itemDto.getRequestId() == null ? null : itemRequestRepository.findById(itemDto.getRequestId()).orElseThrow(() -> new NotFoundException("")));
 
         Item oldItem = itemRepository.findById(item.getId()).orElseThrow(ItemNotFoundException::new);
 
         if (!oldItem.getOwnerId().equals(item.getOwnerId())) {
-            throw new NotFoundException("Не хозяин вещи");
+            throw new AccessDeniedException();
         }
 
         if (item.getName() != null && !item.getName().isBlank())
@@ -90,12 +95,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Collection<ItemDto> search(String text) {
+    public Collection<ItemDto> search(String text, Integer from, Integer size) {
         log.info("Search Item filter:{}", text);
         if (text == null || text.isBlank())
             return new ArrayList<>();
 
-        return itemRepository.searchItemsContainsTextAvailableTrue(text)
+        return itemRepository.searchItemsPageContainsTextAvailableTrue(text, from, size)
                 .stream()
                 .filter(Item::getAvailable)
                 .map(ItemMapper::toDTO)
@@ -108,10 +113,10 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Collection<ItemDtoForOwner> getAll(Long ownerId) {
+    public Collection<ItemDtoForOwner> getAll(Long ownerId, Integer from, Integer size) {
         log.info("GET all item ownerID:{}", ownerId);
 
-        Collection<Item> itemList = itemRepository.findAllByOwnerId(ownerId);
+        Collection<Item> itemList = itemRepository.findPageByOwner_Id(ownerId, from, size);
 
         Collection<ItemDtoForOwner> itemDtoForOwners = itemList.stream()
                 .map(x -> {
