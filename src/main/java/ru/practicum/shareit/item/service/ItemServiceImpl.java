@@ -108,11 +108,6 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public void delete(Long id) {
-
-    }
-
-    @Override
     public Collection<ItemDtoForOwner> getAll(Long ownerId, Integer from, Integer size) {
         log.info("GET all item ownerID:{}", ownerId);
 

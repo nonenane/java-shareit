@@ -11,6 +11,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
@@ -68,6 +69,20 @@ class ItemRequestServiceImplTest {
         Assertions.assertThrows(RuntimeException.class, () -> {
             itemRequestService.createItemRequest(ItemRequestMapper.toItemRequestDto(itemRequest), 1L);
         });
+
+        itemRequest.setId(null);
+        when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            itemRequestService.createItemRequest(ItemRequestMapper.toItemRequestDto(itemRequest), 1L);
+        });
+    }
+
+    @Test
+    void getMyItemRequestsNotFound() {
+        when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            itemRequestService.getMyItemRequests(Mockito.anyLong());
+        });
     }
 
     @Test
@@ -84,6 +99,15 @@ class ItemRequestServiceImplTest {
         Assertions.assertEquals(list.get(0).getItems().get(0).getId(), 1L);
     }
 
+
+    @Test
+    void getItemRequestsNotFound() {
+        when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            itemRequestService.getItemRequests(0, 100, Mockito.anyLong());
+        });
+    }
+
     @Test
     void getItemRequests() {
         when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(user2));
@@ -91,6 +115,23 @@ class ItemRequestServiceImplTest {
                 .thenReturn(new ArrayList<>());
 
         Assertions.assertTrue(itemRequestService.getItemRequests(0, 100, 2L).isEmpty());
+    }
+
+    @Test
+    void getItemRequestNotFoundUser() {
+        when(userRepository.findById(2L)).thenReturn(Optional.empty());
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            itemRequestService.getItemRequest(1L, 2L);
+        });
+    }
+
+    @Test
+    void getItemRequestNotFoundItem() {
+        when(userRepository.findById(2L)).thenReturn(Optional.ofNullable(user1));
+        when(itemRequestRepository.findById(1L)).thenReturn(Optional.empty());
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            itemRequestService.getItemRequest(1L, 2L);
+        });
     }
 
     @Test

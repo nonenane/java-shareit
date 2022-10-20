@@ -9,14 +9,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.state.BookingState;
 import ru.practicum.shareit.booking.status.BookingStatus;
-import ru.practicum.shareit.exception.AccessDeniedException;
-import ru.practicum.shareit.exception.BadRequestException;
-import ru.practicum.shareit.exception.ItemNotAvailableException;
-import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.*;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
@@ -29,6 +29,7 @@ import java.util.Optional;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class BookingServiceImplTest {
 
     @Mock
@@ -64,14 +65,13 @@ class BookingServiceImplTest {
                 "item desc",
                 true,
                 null);
-
     }
 
     @Test
     void createBooking() { //проверить валидацию
         when(bookingRepository.save(booking)).thenReturn(booking);
         when(itemRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(item));
-        when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(user1));
+        when(userRepository.findById(22L)).thenReturn(Optional.ofNullable(user1));
 
         Assertions.assertThrows(RuntimeException.class, () -> {
             bookingService.createBooking(booking, 22L, 22L);
@@ -79,11 +79,16 @@ class BookingServiceImplTest {
 
         booking.setId(null);
         item.setAvailable(false);
-
         Assertions.assertThrows(ItemNotAvailableException.class, () -> {
             bookingService.createBooking(booking, 22L, 22L);
         });
 
+        booking.setEnd(LocalDateTime.now().minusDays(1));
+        Assertions.assertThrows(ValidationException.class, () -> {
+            bookingService.createBooking(booking, 22L, 22L);
+        });
+
+        booking.setEnd(LocalDateTime.now());
         item.setAvailable(true);
 
         Assertions.assertThrows(NotFoundException.class, () -> {
@@ -98,15 +103,26 @@ class BookingServiceImplTest {
     @Test
     void confirmBooking() {
         booking.setItem(item);
-
         when(bookingRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(booking));
 
         Assertions.assertThrows(AccessDeniedException.class, () -> {
             bookingService.confirmBooking(1L, true, 3L);
         });
+
         Assertions.assertThrows(BadRequestException.class, () -> {
             bookingService.confirmBooking(1L, true, 2L);
         });
+
+        booking.setStatus(BookingStatus.WAITING);
+        booking.setBooker(user1);
+        when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(user1));
+        when(bookingRepository.save(booking)).thenReturn(booking);
+        final BookingDto findBooking =  bookingService.confirmBooking(1L, true, 2L).get();
+        Assertions.assertNotNull(findBooking);
+
+        booking.setStatus(BookingStatus.WAITING);
+        BookingDto findBookingRejected =  bookingService.confirmBooking(1L, false, 2L).get();
+        Assertions.assertNotNull(findBookingRejected);
     }
 
     @Test
@@ -115,11 +131,9 @@ class BookingServiceImplTest {
         booking.setItem(item);
 
         when(bookingRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(booking));
-
         Assertions.assertThrows(NotFoundException.class, () -> {
             bookingService.getBooking(1L, 3L);
         });
-
     }
 
     @Test
@@ -134,6 +148,29 @@ class BookingServiceImplTest {
                         0,
                         100)
                 .isEmpty());
+    }
+
+    @Test
+    void getAllMyBookingsNotFound() {
+        when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
+
+
+        Assertions.assertThrows(NotFoundException.class
+                , () -> {
+                    bookingService.getAllMyBookings(1L,
+                            BookingState.PAST,
+                            0,
+                            100);
+                });
+
+        when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(user1));
+        Assertions.assertThrows(RuntimeException.class
+                , () -> {
+                    bookingService.getAllMyBookings(1L,
+                            null,
+                            0,
+                            100);
+                });
     }
 
     @Test

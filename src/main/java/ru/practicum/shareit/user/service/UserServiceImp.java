@@ -30,10 +30,20 @@ public class UserServiceImp implements UserService {
     public Optional<UserDTO> create(UserDTO userDTO) {
         log.info("Create User {}", userDTO.toString());
         User user = UserMapper.toUser(userDTO);
-        if (user.getName() == null || user.getName().isBlank() ||
-                user.getEmail() == null || user.getEmail().isBlank()) {
+        if (user.getName() == null) {
             throw new ValidationException("Ошибка валидации");
         }
+        if (user.getName().isBlank()) {
+            throw new ValidationException("Ошибка валидации");
+        }
+        if (user.getEmail() == null) {
+            throw new ValidationException("Ошибка валидации");
+        }
+        if (user.getEmail().isBlank()) {
+            throw new ValidationException("Ошибка валидации");
+        }
+
+
         return Optional.ofNullable(UserMapper.userDto(userRepository.save(user)));
     }
 
@@ -42,10 +52,15 @@ public class UserServiceImp implements UserService {
         User user = UserMapper.toUser(userDTO);
 
         User oldUser = userRepository.findById(id).orElseThrow(() -> new NotFoundException(id.toString()));
-        if (user.getName() != null && !user.getName().isBlank())
-            oldUser.setName(user.getName());
-        if (user.getEmail() != null && !user.getEmail().isBlank()) {
-            oldUser.setEmail(user.getEmail());
+        if (user.getName() != null) {
+            if (!user.getName().isBlank())
+                oldUser.setName(user.getName());
+        }
+
+        if (user.getEmail() != null) {
+            if (!user.getEmail().isBlank()) {
+                oldUser.setEmail(user.getEmail());
+            }
         }
 
         return Optional.ofNullable(UserMapper.userDto(userRepository.save(oldUser)));

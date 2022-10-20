@@ -2,6 +2,8 @@ package ru.practicum.shareit.booking;
 
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -76,6 +78,8 @@ public class BookingController {
                                                      @RequestParam(required = false, defaultValue = "100") @Positive Integer size) {
 
         log.info("Выполнен запрос getAllBookingsForMyItems");
+        int page = from / size;
+        Pageable pageable = PageRequest.of(page, size);
         return bookingService.getAllBookingsForMyItems(id, state, from, size);
     }
 }

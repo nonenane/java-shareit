@@ -81,9 +81,9 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(BookingNotFoundException::new);
 
         if (!Objects.equals(booking.getBooker().getId(), requestorId)
-                && !Objects.equals(booking.getItem().getOwnerId(), requestorId))
+                && !Objects.equals(booking.getItem().getOwnerId(), requestorId)) {
             throw new NotFoundException(" Только владелец вещи или создатель бронирования могут выполнить запрос.");
-
+        }
         return Optional.of(BookingMapper.toBookingDto(booking));
     }
 
