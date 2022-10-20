@@ -126,12 +126,23 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void getBooking() {
+    void getBookingNotFoundException() {
         booking.setBooker(user1);
         booking.setItem(item);
 
         when(bookingRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(booking));
         Assertions.assertThrows(NotFoundException.class, () -> {
+            bookingService.getBooking(1L, 3L);
+        });
+    }
+
+    @Test
+    void getBookingBookingNotFoundException() {
+        booking.setBooker(user1);
+        booking.setItem(item);
+
+        when(bookingRepository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
+        Assertions.assertThrows(BookingNotFoundException.class, () -> {
             bookingService.getBooking(1L, 3L);
         });
     }

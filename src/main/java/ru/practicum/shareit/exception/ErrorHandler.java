@@ -56,15 +56,6 @@ public class ErrorHandler {
                 HttpStatus.NOT_FOUND);
     }
 
-
-    @ExceptionHandler
-    public ResponseEntity<String> handleDuplicateEmailException(final DuplicateEmailException e) {
-        log.info("error: DuplicateEmailException");
-        return new ResponseEntity<>(
-                "DuplicateEmailException",
-                HttpStatus.CONFLICT);
-    }
-
     @ExceptionHandler
     public ResponseEntity<String> handleThrowable(final Throwable e) {
         log.info("error: Произошла непредвиденная ошибка " + e.getClass());

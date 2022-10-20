@@ -88,6 +88,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
 
+
     @Override
     public List<BookingDto> getAllMyBookings(Long bookerId, BookingState state, Integer from, Integer size) {
         userRepository.findById(bookerId).orElseThrow(() -> new NotFoundException(bookerId.toString()));
