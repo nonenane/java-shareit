@@ -9,6 +9,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.exception.BadRequestException;
+import ru.practicum.shareit.exception.ItemNotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoForOwner;
 import ru.practicum.shareit.item.mapper.ItemMapper;
@@ -75,6 +78,22 @@ class ItemControllerTest {
     }
 
     @Test
+    void createItemValidationException() throws Exception {
+        item.setName(null);
+        itemDto = ItemMapper.toDTO(item);
+        when(itemService.create(Mockito.anyLong(), Mockito.any(ItemDto.class)))
+                .thenThrow(new ValidationException(""));
+
+        mockMvc.perform(post("/items")
+                        .content(mapper.writeValueAsString(itemDto))
+                        .header("X-Sharer-User-Id", 1)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void patchItem() throws Exception {
         when(itemService.update(Mockito.anyLong(), Mockito.anyLong(), Mockito.any(ItemDto.class)))
                 .thenReturn(Optional.ofNullable(itemDtoWithId));
@@ -107,6 +126,19 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.name", is("item")))
                 .andExpect(jsonPath("$.description", is("item desc")))
                 .andExpect(jsonPath("$.available", is(true)));
+    }
+
+    @Test
+    void getItemNotFoundItem() throws Exception {
+        when(itemService.getItemWithOwnerCheck(Mockito.anyLong(), Mockito.anyLong()))
+                .thenThrow(new ItemNotFoundException());
+
+        mockMvc.perform(get("/items/{itemId}", 1L)
+                        .header("X-Sharer-User-Id", 1)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -159,5 +191,19 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.text", is("text")))
                 .andExpect(jsonPath("$.authorName", is("commentator")));
+    }
+
+    @Test
+    void createCommentBadRequest() throws Exception {
+        when(itemService.createComment(Mockito.any(Comment.class), Mockito.anyLong(), Mockito.anyLong()))
+                .thenThrow(new BadRequestException(""));
+
+        mockMvc.perform(post("/items/{itemId}/comment", 1L)
+                        .content(mapper.writeValueAsString(comment))
+                        .header("X-Sharer-User-Id", 1)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 }

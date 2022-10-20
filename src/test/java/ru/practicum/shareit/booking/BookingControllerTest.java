@@ -15,6 +15,9 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.booking.state.BookingState;
 import ru.practicum.shareit.booking.status.BookingStatus;
+import ru.practicum.shareit.exception.AccessDeniedException;
+import ru.practicum.shareit.exception.BookingNotFoundException;
+import ru.practicum.shareit.exception.ItemNotAvailableException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
@@ -79,6 +82,22 @@ class BookingControllerTest {
     }
 
     @Test
+    void createBookingNotAvailableItem() throws Exception {
+
+        when(bookingService.createBooking(Mockito.any(Booking.class), Mockito.anyLong(), Mockito.anyLong()))
+                .thenThrow(new ItemNotAvailableException());
+
+
+        mockMvc.perform(post("/bookings")
+                        .content(mapper.writeValueAsString(bookingDto))
+                        .header("X-Sharer-User-Id", 1)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void confirmBooking() throws Exception {
 
         when(bookingService.confirmBooking(Mockito.anyLong(), Mockito.anyBoolean(), Mockito.anyLong()))
@@ -94,6 +113,36 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.itemId", is(1)))
                 .andExpect(jsonPath("$.bookerId", is(2)));
+    }
+
+    @Test
+    void confirmBookingBookingNotFoundException() throws Exception {
+
+        when(bookingService.confirmBooking(Mockito.anyLong(), Mockito.anyBoolean(), Mockito.anyLong()))
+                .thenThrow(new BookingNotFoundException());
+
+        mockMvc.perform(patch("/bookings/{bookingId}", 1L)
+                        .header("X-Sharer-User-Id", 1)
+                        .param("approved", "true")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void confirmBookingAccessDeniedException() throws Exception {
+
+        when(bookingService.confirmBooking(Mockito.anyLong(), Mockito.anyBoolean(), Mockito.anyLong()))
+                .thenThrow(new AccessDeniedException());
+
+        mockMvc.perform(patch("/bookings/{bookingId}", 1L)
+                        .header("X-Sharer-User-Id", 1)
+                        .param("approved", "true")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
     @Test
