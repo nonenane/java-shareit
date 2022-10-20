@@ -138,7 +138,7 @@ class UserServiceImpTest {
 
     @Test
     void deleteUser() {
-        when(userRepository.findById(1l)).thenReturn(Optional.ofNullable(user));
+        when(userRepository.findById(1L)).thenReturn(Optional.ofNullable(user));
         Assertions.assertThrows(ValidationException.class, () -> {
             userService.delete(1L);
         });

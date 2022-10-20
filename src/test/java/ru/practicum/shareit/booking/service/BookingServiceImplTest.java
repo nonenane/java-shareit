@@ -117,11 +117,11 @@ class BookingServiceImplTest {
         booking.setBooker(user1);
         when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(user1));
         when(bookingRepository.save(booking)).thenReturn(booking);
-        final BookingDto findBooking =  bookingService.confirmBooking(1L, true, 2L).get();
+        final BookingDto findBooking = bookingService.confirmBooking(1L, true, 2L).get();
         Assertions.assertNotNull(findBooking);
 
         booking.setStatus(BookingStatus.WAITING);
-        BookingDto findBookingRejected =  bookingService.confirmBooking(1L, false, 2L).get();
+        BookingDto findBookingRejected = bookingService.confirmBooking(1L, false, 2L).get();
         Assertions.assertNotNull(findBookingRejected);
     }
 
@@ -155,22 +155,20 @@ class BookingServiceImplTest {
         when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
 
 
-        Assertions.assertThrows(NotFoundException.class
-                , () -> {
-                    bookingService.getAllMyBookings(1L,
-                            BookingState.PAST,
-                            0,
-                            100);
-                });
+        Assertions.assertThrows(NotFoundException.class, () -> {
+            bookingService.getAllMyBookings(1L,
+                    BookingState.PAST,
+                    0,
+                    100);
+        });
 
         when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(user1));
-        Assertions.assertThrows(RuntimeException.class
-                , () -> {
-                    bookingService.getAllMyBookings(1L,
-                            null,
-                            0,
-                            100);
-                });
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            bookingService.getAllMyBookings(1L,
+                    null,
+                    0,
+                    100);
+        });
     }
 
     @Test
