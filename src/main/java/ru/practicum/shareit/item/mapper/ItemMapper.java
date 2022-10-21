@@ -1,33 +1,32 @@
 package ru.practicum.shareit.item.mapper;
 
-import org.springframework.stereotype.Component;
+import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoForItemRequest;
 import ru.practicum.shareit.item.dto.ItemDtoForOwner;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.model.ItemRequest;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Component
+@NoArgsConstructor
 public class ItemMapper {
 
-    public static Item toItem(ItemDto itemDto, Long ownerId) {
-        return new Item(null, ownerId, itemDto.getName(), itemDto.getDescription(), itemDto.getAvailable());
+    public static Item toItem(ItemDto itemDto, Long ownerId, ItemRequest itemRequest) {
+        return new Item(itemDto.getId(), ownerId, itemDto.getName(), itemDto.getDescription(), itemDto.getAvailable(), itemRequest);
     }
 
-    public static Item toItem(ItemDto itemDto, Long ownerId, Long itemId) {
-        return new Item(itemId, ownerId, itemDto.getName(), itemDto.getDescription(), itemDto.getAvailable());
+    public static Item toItem(ItemDto itemDto, Long ownerId, Long itemId, ItemRequest itemRequest) {
+        return new Item(itemId, ownerId, itemDto.getName(), itemDto.getDescription(), itemDto.getAvailable(), itemRequest);
     }
 
     public static ItemDto toDTO(Item item) {
-        return new ItemDto(item.getId(), item.getName(), item.getDescription(), item.getAvailable());
+        return new ItemDto(item.getId(), item.getName(), item.getDescription(), item.getAvailable(), item.getRequest() == null ? null : item.getRequest().getId());
     }
 
     public static ItemDtoForOwner toItemDtoForOwner(Item item, Booking last, Booking next) {
-        if (item == null)
-            return null;
-
         return new ItemDtoForOwner(item.getId(),
                 item.getName(),
                 item.getDescription(),
@@ -58,7 +57,6 @@ public class ItemMapper {
                 if (index != 0) {
                     next = bookingList.get(index - 1);
                 }
-
                 break;
             }
         }
@@ -67,6 +65,14 @@ public class ItemMapper {
             next = bookingList.get(bookingList.size() - 1);
 
         return ItemMapper.toItemDtoForOwner(item, last, next);
+    }
+
+    public static ItemDtoForItemRequest toItemDtoForItemRequest(Item item) {
+        return new ItemDtoForItemRequest(item.getId(),
+                item.getName(),
+                item.getDescription(),
+                item.getAvailable(),
+                item.getRequest() == null ? null : item.getRequest().getId());
     }
 }
 

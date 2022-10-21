@@ -11,6 +11,8 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.Collection;
 
 @RestController
@@ -27,8 +29,10 @@ public class ItemController {
 
 
     @GetMapping
-    public Collection<ItemDtoForOwner> getAll(@RequestHeader("X-Sharer-User-Id") Long ownerId) {
-        return itemService.getAll(ownerId);
+    public Collection<ItemDtoForOwner> getAll(@RequestHeader("X-Sharer-User-Id") Long ownerId,
+                                              @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
+                                              @RequestParam(required = false, defaultValue = "100") @Positive Integer size) {
+        return itemService.getAll(ownerId, from, size);
     }
 
     @PostMapping
@@ -49,8 +53,11 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public Collection<ItemDto> search(@RequestHeader("X-Sharer-User-Id") Long ownerId, @RequestParam(required = false) String text) {
-        return itemService.search(text);
+    public Collection<ItemDto> search(@RequestHeader("X-Sharer-User-Id") Long ownerId,
+                                      @RequestParam(required = false) String text,
+                                      @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
+                                      @RequestParam(required = false, defaultValue = "100") @Positive Integer size) {
+        return itemService.search(text, from, size);
     }
 
     @PostMapping("/{itemId}/comment")

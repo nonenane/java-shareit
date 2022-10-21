@@ -19,43 +19,56 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserServiceImp implements UserService {
     private final UserRepository userRepository;
-    private final UserMapper userMapper;
 
     @Autowired
-    public UserServiceImp(UserMapper userMapper, UserRepository userRepository) {
+    public UserServiceImp(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.userMapper = userMapper;
     }
 
     @Override
     @Transactional
     public Optional<UserDTO> create(UserDTO userDTO) {
         log.info("Create User {}", userDTO.toString());
-        User user = userMapper.toUser(userDTO);
-        if (user.getName() == null || user.getName().isBlank() ||
-                user.getEmail() == null || user.getEmail().isBlank()) {
+        User user = UserMapper.toUser(userDTO);
+        if (user.getName() == null) {
             throw new ValidationException("Ошибка валидации");
         }
-        return Optional.ofNullable(userMapper.userDto(userRepository.save(user)));
+        if (user.getName().isBlank()) {
+            throw new ValidationException("Ошибка валидации");
+        }
+        if (user.getEmail() == null) {
+            throw new ValidationException("Ошибка валидации");
+        }
+        if (user.getEmail().isBlank()) {
+            throw new ValidationException("Ошибка валидации");
+        }
+
+
+        return Optional.ofNullable(UserMapper.userDto(userRepository.save(user)));
     }
 
     public Optional<UserDTO> update(Long id, UserDTO userDTO) {
         log.info("Update user ID:{}; Data:{}", id, userDTO);
-        User user = userMapper.toUser(userDTO);
+        User user = UserMapper.toUser(userDTO);
 
         User oldUser = userRepository.findById(id).orElseThrow(() -> new NotFoundException(id.toString()));
-        if (user.getName() != null && !user.getName().isBlank())
-            oldUser.setName(user.getName());
-        if (user.getEmail() != null && !user.getEmail().isBlank()) {
-            oldUser.setEmail(user.getEmail());
+        if (user.getName() != null) {
+            if (!user.getName().isBlank())
+                oldUser.setName(user.getName());
         }
 
-        return Optional.ofNullable(userMapper.userDto(userRepository.save(oldUser)));
+        if (user.getEmail() != null) {
+            if (!user.getEmail().isBlank()) {
+                oldUser.setEmail(user.getEmail());
+            }
+        }
+
+        return Optional.ofNullable(UserMapper.userDto(userRepository.save(oldUser)));
     }
 
     public Optional<UserDTO> get(Long id) {
         log.info("Get info User ID:{}", id);
-        return Optional.ofNullable(userMapper.userDto(userRepository.findById(id).orElseThrow(() -> new NotFoundException(id.toString()))));
+        return Optional.ofNullable(UserMapper.userDto(userRepository.findById(id).orElseThrow(() -> new NotFoundException(id.toString()))));
     }
 
     public void delete(Long id) {
@@ -68,7 +81,7 @@ public class UserServiceImp implements UserService {
 
     public Collection<UserDTO> getAll() {
         log.info("Get all users");
-        return userRepository.findAll().stream().map(userMapper::userDto).collect(Collectors.toList());
+        return userRepository.findAll().stream().map(UserMapper::userDto).collect(Collectors.toList());
     }
 
 }

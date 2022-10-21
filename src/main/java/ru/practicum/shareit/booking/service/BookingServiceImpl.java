@@ -81,21 +81,23 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(BookingNotFoundException::new);
 
         if (!Objects.equals(booking.getBooker().getId(), requestorId)
-                && !Objects.equals(booking.getItem().getOwnerId(), requestorId))
+                && !Objects.equals(booking.getItem().getOwnerId(), requestorId)) {
             throw new NotFoundException(" Только владелец вещи или создатель бронирования могут выполнить запрос.");
-
+        }
         return Optional.of(BookingMapper.toBookingDto(booking));
     }
 
 
+
     @Override
-    public List<BookingDto> getAllMyBookings(Long bookerId, BookingState state) {
+    public List<BookingDto> getAllMyBookings(Long bookerId, BookingState state, Integer from, Integer size) {
         userRepository.findById(bookerId).orElseThrow(() -> new NotFoundException(bookerId.toString()));
 
         switch (state) {
             case ALL:
                 return bookingRepository.findAllByBooker_IdOrderByStartDesc(bookerId)
                         .stream()
+                        .skip(from).limit(size)
                         .map(BookingMapper::toBookingDto)
                         .collect(Collectors.toList());
             case CURRENT:
@@ -103,6 +105,7 @@ public class BookingServiceImpl implements BookingService {
                                 LocalDateTime.now(),
                                 LocalDateTime.now())
                         .stream()
+                        .skip(from).limit(size)
                         .map(BookingMapper::toBookingDto)
                         .collect(Collectors.toList());
             case PAST:
@@ -110,6 +113,7 @@ public class BookingServiceImpl implements BookingService {
                                 LocalDateTime.now(),
                                 LocalDateTime.now())
                         .stream()
+                        .skip(from).limit(size)
                         .map(BookingMapper::toBookingDto)
                         .collect(Collectors.toList());
             case FUTURE:
@@ -117,18 +121,21 @@ public class BookingServiceImpl implements BookingService {
                                 LocalDateTime.now(),
                                 LocalDateTime.now())
                         .stream()
+                        .skip(from).limit(size)
                         .map(BookingMapper::toBookingDto)
                         .collect(Collectors.toList());
             case WAITING:
                 return bookingRepository.findAllByStatusAndBooker_IdOrderByStartDesc(BookingStatus.WAITING,
                                 bookerId)
                         .stream()
+                        .skip(from).limit(size)
                         .map(BookingMapper::toBookingDto)
                         .collect(Collectors.toList());
             case REJECTED:
                 return bookingRepository.findAllByStatusAndBooker_IdOrderByStartDesc(BookingStatus.REJECTED,
                                 bookerId)
                         .stream()
+                        .skip(from).limit(size)
                         .map(BookingMapper::toBookingDto)
                         .collect(Collectors.toList());
             default:
@@ -138,7 +145,7 @@ public class BookingServiceImpl implements BookingService {
 
 
     @Override
-    public List<BookingDto> getAllBookingsForMyItems(Long ownerId, BookingState state) {
+    public List<BookingDto> getAllBookingsForMyItems(Long ownerId, BookingState state, Integer from, Integer size) {
         userRepository.findById(ownerId).orElseThrow(() -> new NotFoundException(ownerId.toString()));
 
         List<Long> idsList = bookingRepository.findUserItemsBookingsIds(ownerId);
@@ -152,6 +159,7 @@ public class BookingServiceImpl implements BookingService {
                         .map(bookingRepository::findById)
                         .map(Optional::get)
                         .sorted((x, y) -> y.getStart().compareTo(x.getStart()))
+                        .skip(from).limit(size)
                         .map(BookingMapper::toBookingDto)
                         .collect(Collectors.toList());
             case CURRENT:
@@ -161,6 +169,7 @@ public class BookingServiceImpl implements BookingService {
                         .filter((x) -> x.getStart().isBefore(LocalDateTime.now())
                                 && x.getEnd().isAfter(LocalDateTime.now()))
                         .sorted((x, y) -> y.getStart().compareTo(x.getStart()))
+                        .skip(from).limit(size)
                         .map(BookingMapper::toBookingDto)
                         .collect(Collectors.toList());
             case PAST:
@@ -170,6 +179,7 @@ public class BookingServiceImpl implements BookingService {
                         .filter((x) -> x.getStart().isBefore(LocalDateTime.now())
                                 && x.getEnd().isBefore(LocalDateTime.now()))
                         .sorted((x, y) -> y.getStart().compareTo(x.getStart()))
+                        .skip(from).limit(size)
                         .map(BookingMapper::toBookingDto)
                         .collect(Collectors.toList());
             case FUTURE:
@@ -179,6 +189,7 @@ public class BookingServiceImpl implements BookingService {
                         .filter((x) -> x.getStart().isAfter(LocalDateTime.now())
                                 && x.getEnd().isAfter(LocalDateTime.now()))
                         .sorted((x, y) -> y.getStart().compareTo(x.getStart()))
+                        .skip(from).limit(size)
                         .map(BookingMapper::toBookingDto)
                         .collect(Collectors.toList());
             case WAITING:
@@ -187,6 +198,7 @@ public class BookingServiceImpl implements BookingService {
                         .map(Optional::get)
                         .filter((x) -> x.getStatus().equals(BookingStatus.WAITING))
                         .sorted((x, y) -> y.getStart().compareTo(x.getStart()))
+                        .skip(from).limit(size)
                         .map(BookingMapper::toBookingDto)
                         .collect(Collectors.toList());
             case REJECTED:
@@ -195,6 +207,7 @@ public class BookingServiceImpl implements BookingService {
                         .map(Optional::get)
                         .filter((x) -> x.getStatus().equals(BookingStatus.REJECTED))
                         .sorted((x, y) -> y.getStart().compareTo(x.getStart()))
+                        .skip(from).limit(size)
                         .map(BookingMapper::toBookingDto)
                         .collect(Collectors.toList());
             default:
