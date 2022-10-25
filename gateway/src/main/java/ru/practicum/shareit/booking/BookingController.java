@@ -2,13 +2,10 @@ package ru.practicum.shareit.booking;
 
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.booking.client.BookingClient;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.mapper.BookingMapper;
-import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.booking.state.BookingState;
 import ru.practicum.shareit.groupValidate.Create;
 
@@ -24,10 +21,10 @@ import java.util.Optional;
 @RequestMapping(path = "/bookings")
 public class BookingController {
 
-    private final BookingService bookingService;
+    private final BookingClient bookingClient;
 
-    public BookingController(BookingService bookingService) {
-        this.bookingService = bookingService;
+    public BookingController(BookingClient bookingClient) {
+        this.bookingClient = bookingClient;
     }
 
 
@@ -36,7 +33,7 @@ public class BookingController {
                                               @RequestHeader("X-Sharer-User-Id") Long id) {
 
         log.info("Выполнен запрос createBooking");
-        return bookingService.createBooking(BookingMapper.toBooking(bookingDto), bookingDto.getItemId(), id);
+        return bookingClient.createBooking(bookingDto, id);
 
     }
 
@@ -47,7 +44,7 @@ public class BookingController {
                                                @RequestHeader("X-Sharer-User-Id") Long id) {
 
         log.info("Выполнен запрос confirmBooking");
-        return bookingService.confirmBooking(bookingId, approved, id);
+        return bookingClient.confirmBooking(bookingId, approved, id);
 
     }
 
@@ -56,7 +53,7 @@ public class BookingController {
     public Optional<BookingDto> getBooking(@PathVariable Long bookingId,
                                            @RequestHeader("X-Sharer-User-Id") Long id) {
         log.info("Выполнен запрос getBooking");
-        return bookingService.getBooking(bookingId, id);
+        return bookingClient.getBooking(bookingId, id);
 
     }
 
@@ -68,7 +65,7 @@ public class BookingController {
                                              @RequestParam(required = false, defaultValue = "100") @Min(1) Integer size) {
 
         log.info("Выполнен запрос getAllMyBookings");
-        return bookingService.getAllMyBookings(id, state, from, size);
+        return bookingClient.getAllMyBookings(id, state, from, size);
     }
 
     @GetMapping("/owner")
@@ -78,8 +75,6 @@ public class BookingController {
                                                      @RequestParam(required = false, defaultValue = "100") @Positive Integer size) {
 
         log.info("Выполнен запрос getAllBookingsForMyItems");
-        int page = from / size;
-        Pageable pageable = PageRequest.of(page, size);
-        return bookingService.getAllBookingsForMyItems(id, state, from, size);
+        return bookingClient.getAllBookingsForMyItems(id, state, from, size);
     }
 }

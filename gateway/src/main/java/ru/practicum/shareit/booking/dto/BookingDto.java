@@ -8,8 +8,8 @@ import ru.practicum.shareit.booking.annotation.StartBeforeEnd;
 import ru.practicum.shareit.booking.status.BookingStatus;
 import ru.practicum.shareit.groupValidate.Create;
 import ru.practicum.shareit.groupValidate.Update;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.user.dto.UserDTO;
 
 import javax.validation.constraints.Future;
 import javax.validation.constraints.FutureOrPresent;
@@ -32,8 +32,8 @@ public class BookingDto {
     @NotNull
     @Future
     private LocalDateTime end;
-    private Item item;
-    private User booker;
+    private ItemDto item;
+    private UserDTO booker;
     private BookingStatus status;
     private Long itemId;
 

@@ -10,11 +10,7 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.booking.state.BookingState;
-import ru.practicum.shareit.groupValidate.Create;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,7 +28,7 @@ public class BookingController {
 
 
     @PostMapping()
-    public Optional<BookingDto> createBooking(@Validated(Create.class) @RequestBody BookingDto bookingDto,
+    public Optional<BookingDto> createBooking(@RequestBody BookingDto bookingDto,
                                               @RequestHeader("X-Sharer-User-Id") Long id) {
 
         log.info("Выполнен запрос createBooking");
@@ -64,8 +60,8 @@ public class BookingController {
     @GetMapping
     public List<BookingDto> getAllMyBookings(@RequestParam(required = false, defaultValue = "ALL") BookingState state,
                                              @RequestHeader("X-Sharer-User-Id") Long id,
-                                             @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
-                                             @RequestParam(required = false, defaultValue = "100") @Min(1) Integer size) {
+                                             @RequestParam(required = false, defaultValue = "0") Integer from,
+                                             @RequestParam(required = false, defaultValue = "100") Integer size) {
 
         log.info("Выполнен запрос getAllMyBookings");
         return bookingService.getAllMyBookings(id, state, from, size);
@@ -74,8 +70,8 @@ public class BookingController {
     @GetMapping("/owner")
     public List<BookingDto> getAllBookingsForMyItems(@RequestParam(required = false, defaultValue = "ALL") BookingState state,
                                                      @RequestHeader("X-Sharer-User-Id") Long id,
-                                                     @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
-                                                     @RequestParam(required = false, defaultValue = "100") @Positive Integer size) {
+                                                     @RequestParam(required = false, defaultValue = "0") Integer from,
+                                                     @RequestParam(required = false, defaultValue = "100") Integer size) {
 
         log.info("Выполнен запрос getAllBookingsForMyItems");
         int page = from / size;
