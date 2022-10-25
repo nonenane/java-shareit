@@ -8,7 +8,6 @@ import ru.practicum.shareit.booking.client.BookingClient;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.state.BookingState;
 import ru.practicum.shareit.groupValidate.Create;
-import ru.practicum.shareit.groupValidate.Update;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Positive;
