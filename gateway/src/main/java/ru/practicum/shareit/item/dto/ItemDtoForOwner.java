@@ -18,6 +18,8 @@ public class ItemDtoForOwner {
     private List<CommentDto> comments;
 
     @AllArgsConstructor
+    @NoArgsConstructor
+    @Data
     @Getter
     @Setter
     public static class Booking {

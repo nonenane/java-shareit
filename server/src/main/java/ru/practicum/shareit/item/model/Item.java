@@ -24,10 +24,9 @@ public class Item {
     private String name;
     @Column(name = "description", length = 1024)
     private String description;
-    @Column(name = "available")
+    @Column(name = "available", columnDefinition = "BooleanType", length = 1)
     private Boolean available;
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "request_id")
     private ItemRequest request;
-
 }

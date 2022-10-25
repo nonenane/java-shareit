@@ -6,7 +6,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.exception.*;
+import ru.practicum.shareit.exception.AccessDeniedException;
+import ru.practicum.shareit.exception.BadRequestException;
+import ru.practicum.shareit.exception.ItemNotFoundException;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoForOwner;
 import ru.practicum.shareit.item.mapper.CommentMapper;
@@ -49,13 +52,6 @@ public class ItemServiceImpl implements ItemService {
         Item item = ItemMapper.toItem(itemDto,
                 ownerId,
                 itemDto.getRequestId() == null ? null : itemRequestRepository.findById(itemDto.getRequestId()).orElseThrow(() -> new NotFoundException("")));
-        if (item.getName() == null || item.getName().isBlank() ||
-                item.getDescription() == null || item.getDescription().isBlank() ||
-                item.getAvailable() == null ||
-                item.getOwnerId() == null
-        )
-            throw new ValidationException("Ошибка валидации");
-
         userRepository.findById(item.getOwnerId()).orElseThrow(() -> new NotFoundException(item.getOwnerId().toString()));
         return Optional.ofNullable(ItemMapper.toDTO(itemRepository.save(item)));
     }

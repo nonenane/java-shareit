@@ -45,6 +45,8 @@ public class BookingClient {
                         + "/?approved=" + approved)
                 .header("X-Sharer-User-Id", String.valueOf(requetorId))
                 .retrieve()
+                .onStatus(HttpStatus.BAD_REQUEST::equals, clientResponse -> clientResponse.bodyToMono(String.class).flatMap(error -> Mono.error(new BadRequestException(error))))
+                .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> clientResponse.bodyToMono(String.class).flatMap(error -> Mono.error(new NotFoundException(error))))
                 .bodyToMono(BookingDto.class)
                 .blockOptional();
     }
@@ -54,6 +56,8 @@ public class BookingClient {
                 .uri(serverUri + "/bookings/" + bookingId)
                 .header("X-Sharer-User-Id", String.valueOf(requetorId))
                 .retrieve()
+                .onStatus(HttpStatus.BAD_REQUEST::equals, clientResponse -> clientResponse.bodyToMono(String.class).flatMap(error -> Mono.error(new BadRequestException(error))))
+                .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> clientResponse.bodyToMono(String.class).flatMap(error -> Mono.error(new NotFoundException(error))))
                 .bodyToMono(BookingDto.class)
                 .blockOptional();
     }
@@ -69,6 +73,8 @@ public class BookingClient {
                         + "&size=" + size)
                 .header("X-Sharer-User-Id", String.valueOf(requetorId))
                 .retrieve()
+                .onStatus(HttpStatus.BAD_REQUEST::equals, clientResponse -> clientResponse.bodyToMono(String.class).flatMap(error -> Mono.error(new BadRequestException(error))))
+                .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> clientResponse.bodyToMono(String.class).flatMap(error -> Mono.error(new NotFoundException(error))))
                 .bodyToFlux(BookingDto.class)
                 .collect(Collectors.toList())
                 .block();
@@ -86,6 +92,8 @@ public class BookingClient {
                         + "&size=" + size)
                 .header("X-Sharer-User-Id", String.valueOf(requetorId))
                 .retrieve()
+                .onStatus(HttpStatus.BAD_REQUEST::equals, clientResponse -> clientResponse.bodyToMono(String.class).flatMap(error -> Mono.error(new BadRequestException(error))))
+                .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> clientResponse.bodyToMono(String.class).flatMap(error -> Mono.error(new NotFoundException(error))))
                 .bodyToFlux(BookingDto.class)
                 .collect(Collectors.toList())
                 .block();

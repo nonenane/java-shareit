@@ -2,10 +2,13 @@ package ru.practicum.shareit.request.client;
 
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import ru.practicum.shareit.exception.BadRequestException;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 
 import java.util.List;
@@ -29,6 +32,8 @@ public class ItemRequestClient {
                 .body(Mono.just(itemRequestDto), ItemRequestDto.class)
                 .header("X-Sharer-User-Id", String.valueOf(requetorId))
                 .retrieve()
+                .onStatus(HttpStatus.BAD_REQUEST::equals, clientResponse -> clientResponse.bodyToMono(String.class).flatMap(error -> Mono.error(new BadRequestException(error))))
+                .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> clientResponse.bodyToMono(String.class).flatMap(error -> Mono.error(new NotFoundException(error))))
                 .bodyToMono(ItemRequestDto.class)
                 .blockOptional();
     }
@@ -38,6 +43,8 @@ public class ItemRequestClient {
                 .uri(serverUri + "/requests")
                 .header("X-Sharer-User-Id", String.valueOf(requetorId))
                 .retrieve()
+                .onStatus(HttpStatus.BAD_REQUEST::equals, clientResponse -> clientResponse.bodyToMono(String.class).flatMap(error -> Mono.error(new BadRequestException(error))))
+                .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> clientResponse.bodyToMono(String.class).flatMap(error -> Mono.error(new NotFoundException(error))))
                 .bodyToFlux(ItemRequestDto.class)
                 .collect(Collectors.toList())
                 .block();
@@ -52,6 +59,8 @@ public class ItemRequestClient {
                         + "&size=" + size)
                 .header("X-Sharer-User-Id", String.valueOf(requetorId))
                 .retrieve()
+                .onStatus(HttpStatus.BAD_REQUEST::equals, clientResponse -> clientResponse.bodyToMono(String.class).flatMap(error -> Mono.error(new BadRequestException(error))))
+                .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> clientResponse.bodyToMono(String.class).flatMap(error -> Mono.error(new NotFoundException(error))))
                 .bodyToFlux(ItemRequestDto.class)
                 .collect(Collectors.toList())
                 .block();
@@ -64,6 +73,8 @@ public class ItemRequestClient {
                 .uri(serverUri + "/requests/" + requestId)
                 .header("X-Sharer-User-Id", String.valueOf(requetorId))
                 .retrieve()
+                .onStatus(HttpStatus.BAD_REQUEST::equals, clientResponse -> clientResponse.bodyToMono(String.class).flatMap(error -> Mono.error(new BadRequestException(error))))
+                .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> clientResponse.bodyToMono(String.class).flatMap(error -> Mono.error(new NotFoundException(error))))
                 .bodyToMono(ItemRequestDto.class)
                 .blockOptional();
     }

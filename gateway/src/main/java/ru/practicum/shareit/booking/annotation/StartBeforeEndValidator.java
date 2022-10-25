@@ -14,6 +14,7 @@ public class StartBeforeEndValidator implements ConstraintValidator<StartBeforeE
 
     @Override
     public boolean isValid(BookingDto bookingDto, ConstraintValidatorContext constraintValidatorContext) {
+        log.info(bookingDto.toString());
         return bookingDto.getStart().isBefore(bookingDto.getEnd());
     }
 }
