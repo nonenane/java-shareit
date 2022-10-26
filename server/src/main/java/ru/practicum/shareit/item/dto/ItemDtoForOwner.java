@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -23,6 +24,16 @@ public class ItemDtoForOwner {
     public static class Booking {
         private Long id;
         private Long bookerId;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class CommentDto {
+        Long id;
+        String text;
+        String authorName;
+        LocalDateTime created;
     }
 }
 
