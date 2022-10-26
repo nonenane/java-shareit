@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
@@ -21,6 +22,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
@@ -35,6 +37,7 @@ public class BookingServiceImpl implements BookingService {
 
 
     @Override
+    @Transactional
     public Optional<BookingDto> createBooking(Booking booking, Long itemId, Long bookerId) {
         if (booking.getId() != null) {
             throw new RuntimeException(" Неверное значение id.");
@@ -61,6 +64,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public Optional<BookingDto> confirmBooking(Long bookingId, Boolean approved, Long requestorId) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(BookingNotFoundException::new);
 
@@ -86,7 +90,6 @@ public class BookingServiceImpl implements BookingService {
         }
         return Optional.of(BookingMapper.toBookingDto(booking));
     }
-
 
 
     @Override

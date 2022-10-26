@@ -17,6 +17,7 @@ services:
       - db
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/shareit?user=root&password=root
+  #    - TZ=Europe/Moscow
 
   db:
     image: postgres:15.0

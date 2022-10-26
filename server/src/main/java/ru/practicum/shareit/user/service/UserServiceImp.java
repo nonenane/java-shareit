@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@Transactional(readOnly = true)
 public class UserServiceImp implements UserService {
     private final UserRepository userRepository;
 
@@ -47,6 +48,7 @@ public class UserServiceImp implements UserService {
         return Optional.ofNullable(UserMapper.userDto(userRepository.save(user)));
     }
 
+    @Transactional
     public Optional<UserDTO> update(Long id, UserDTO userDTO) {
         log.info("Update user ID:{}; Data:{}", id, userDTO);
         User user = UserMapper.toUser(userDTO);
@@ -71,6 +73,7 @@ public class UserServiceImp implements UserService {
         return Optional.ofNullable(UserMapper.userDto(userRepository.findById(id).orElseThrow(() -> new NotFoundException(id.toString()))));
     }
 
+    @Transactional
     public void delete(Long id) {
         log.info("Delete user ID:{}", id);
         userRepository.deleteById(id);

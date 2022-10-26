@@ -47,6 +47,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public Optional<ItemDto> create(Long ownerId, ItemDto itemDto) {
         log.info("Create Item OwnerID:{}; Item:{}", ownerId, itemDto);
         Item item = ItemMapper.toItem(itemDto,
@@ -145,6 +146,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public Comment createComment(Comment comment, Long itemId, Long createrId) {
         comment.setItem(itemRepository.findById(itemId).orElseThrow(() -> new ItemNotFoundException())); //здесь произойдет проверка корректности itemId
         comment.setAuthor(userRepository.findById(createrId).orElseThrow(() -> new NotFoundException(createrId.toString()))); //здесь произойдет проверка корректности createrId

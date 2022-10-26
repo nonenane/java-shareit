@@ -1,6 +1,7 @@
 package ru.practicum.shareit.request.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -17,6 +18,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 public class ItemRequestServiceImpl implements ItemRequestService {
 
     private final ItemRequestRepository itemRequestRepository;
@@ -31,6 +33,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
 
     @Override
+    @Transactional
     public Optional<ItemRequestDto> createItemRequest(ItemRequestDto itemRequestDto, Long creatorId) {
         if (itemRequestDto.getId() != null)
             throw new RuntimeException(" Неверное значение id.");
