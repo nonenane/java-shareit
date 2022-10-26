@@ -12,7 +12,6 @@ import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoForOwner;
-import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
@@ -119,7 +118,7 @@ public class ItemServiceImpl implements ItemService {
 
         for (ItemDtoForOwner item : itemDtoForOwners) {
             item.setComments(commentRepository.findAllByItem_Id(item.getId()).stream()
-                    .map(CommentMapper::toCommentDto)
+                    .map(s -> new ItemDtoForOwner.CommentDto(s.getId(), s.getText(), s.getAuthor().getName(), s.getCreated()))
                     .collect(Collectors.toList()));
         }
 
@@ -140,7 +139,9 @@ public class ItemServiceImpl implements ItemService {
             returnItemDto = ItemMapper.toItemDtoForOwner(item, null, null);
         }
 
-        returnItemDto.setComments(comments.stream().map(CommentMapper::toCommentDto).collect(Collectors.toList()));
+        returnItemDto.setComments(comments.stream()
+                .map(s -> new ItemDtoForOwner.CommentDto(s.getId(), s.getText(), s.getAuthor().getName(), s.getCreated()))
+                .collect(Collectors.toList()));
 
         return Optional.ofNullable(returnItemDto);
     }
