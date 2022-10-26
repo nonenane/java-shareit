@@ -29,7 +29,9 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     @Query(value = "select * " +
             "from items as i " +
             "where i.owner_id = ?1 " +
-            "LIMIT ?3 OFFSET ?2", nativeQuery = true)
+            "ORDER BY ID ASC " +
+            "LIMIT ?3 OFFSET ?2"
+            , nativeQuery = true)
     Collection<Item> findPageByOwner_Id(Long ownerId,
                                         Integer from,
                                         Integer size);
